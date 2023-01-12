@@ -46,12 +46,54 @@ func detailsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
+func listPost(w http.ResponseWriter, r *http.Request) {
+	log.Println("List posts")
+
+	vars := mux.Vars(r)
+	ZipCode := vars["zip_code"]         // the page
+	CountryCode := vars["country_code"] // the page
+
+	resp, err := http.Get("https://jsonplaceholder.typicode.com/posts" + CountryCode + "/" + ZipCode)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Fprint(w, string(body))
+}
+
+func getPost(w http.ResponseWriter, r *http.Request) {
+	log.Println("INSIDE Get post with ID")
+	vars := mux.Vars(r)
+	postID := vars["post_id"]
+	log.Println("Get post with ID", postID)
+	resp, err := http.Get("https://jsonplaceholder.typicode.com/posts/" + postID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Fprint(w, string(body))
+}
+
 func main() {
 	r := mux.NewRouter()
 
-	r.HandleFunc("/health", healthHandler)
 	r.HandleFunc("/", rootHandler)
+	r.HandleFunc("/health", healthHandler)
 	r.HandleFunc("/details", detailsHandler)
+	r.HandleFunc("/posts", listPost)
+	r.HandleFunc("/posts/{post_id}", getPost)
 
 	// Start the server
 	log.Println("Web server has started!!!")
