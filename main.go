@@ -137,8 +137,12 @@ func main() {
 	r.HandleFunc("/details", detailsHandler)
 	r.HandleFunc("/posts", listPost)
 	r.HandleFunc("/posts/{post_id}", getPost)
+	
 	r.HandleFunc("/zip/{country}/{postal-code}", getZipCode)
 	r.HandleFunc("/zip/{country}/{state}/{city}", getCityInfo)
+	// Examples
+	// http://localhost/zip/IN/202394
+	// http://localhost/zip/IN/UP/Jahangirabad%20Bulandshahr
 
 	// Start the server
 	log.Println("Web server has started!!!")
