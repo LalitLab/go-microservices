@@ -87,6 +87,48 @@ func getPost(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(body))
 }
 
+func getZipCode(w http.ResponseWriter, r *http.Request) {
+	log.Println("INSIDE getZipCode")
+	vars := mux.Vars(r)
+	country := vars["country"]
+	postalCode := vars["postal-code"]
+	log.Printf("Get city information with CountryCode: (%s) and ZipCode: (%s)", country, postalCode)
+	resp, err := http.Get(fmt.Sprintf("https://api.zippopotam.us/%s/%s", country, postalCode))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Fprint(w, string(body))
+}
+
+func getCityInfo(w http.ResponseWriter, r *http.Request) {
+	log.Println("INSIDE getZipCode")
+	vars := mux.Vars(r)
+	country := vars["country"]
+	state := vars["state"]
+	city := vars["city"]
+
+	log.Printf("Get city information with Country: (%s) and State: (%s) and City: (%s)", country, state, city)
+	resp, err := http.Get(fmt.Sprintf("https://api.zippopotam.us/%s/%s/%s", country, state, city))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Fprint(w, string(body))
+}
+
 func main() {
 	r := mux.NewRouter()
 
@@ -95,6 +137,8 @@ func main() {
 	r.HandleFunc("/details", detailsHandler)
 	r.HandleFunc("/posts", listPost)
 	r.HandleFunc("/posts/{post_id}", getPost)
+	r.HandleFunc("/zip/{country}/{postal-code}", getZipCode)
+	r.HandleFunc("/zip/{country}/{state}/{city}", getCityInfo)
 
 	// Start the server
 	log.Println("Web server has started!!!")
